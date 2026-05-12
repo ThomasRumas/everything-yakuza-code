@@ -1,0 +1,43 @@
+{
+  "name": "eyc",
+  "owner": {
+    "name": "Thomas Rumas",
+    "email": ""
+  },
+  "metadata": {
+    "description": "Agent-based software development workflow for Claude Code with Local AI"
+  },
+  "plugins": [
+    {
+      "name": "everything-yakuza-code",
+      "source": "./",
+      "description": "Specialized agents and guided pipeline hooks for orchestrating, coding, refactoring, and testing with strict plan adherence and acceptance criteria validation",
+      "version": "1.0.0",
+      "author": {
+        "name": "Thomas Rumas"
+      },
+      "homepage": "https://github.com/thomasrumas/everything-yakuza-code",
+      "repository": "https://github.com/thomasrumas/everything-yakuza-code",
+      "license": "MIT",
+      "keywords": [
+        "agents",
+        "skills",
+        "orchestrator",
+        "tdd",
+        "code-review",
+        "refactoring",
+        "workflow"
+      ],
+      "category": "workflow",
+      "tags": [
+        "agents",
+        "skills",
+        "orchestrator",
+        "tdd",
+        "refactoring",
+        "workflow"
+      ],
+      "strict": false
+    }
+  ]
+}

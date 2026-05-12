@@ -1,0 +1,29 @@
+{
+  "name": "everything-yakuza-code",
+  "version": "1.0.0",
+  "description": "Agent-based software development workflow — orchestrate, code, refactor, and test with specialized agents and guided pipeline hooks",
+  "author": {
+    "name": "Thomas Rumas",
+    "url": "https://github.com/thomasrumas"
+  },
+  "homepage": "https://github.com/thomasrumas/everything-yakuza-code",
+  "repository": "https://github.com/thomasrumas/everything-yakuza-code",
+  "license": "MIT",
+  "keywords": [
+    "claude-code",
+    "agents",
+    "skills",
+    "orchestrator",
+    "tdd",
+    "code-review",
+    "refactoring",
+    "workflow"
+  ],
+  "mcpServers": {},
+  "skills": [
+    "./skills/"
+  ],
+  "commands": [
+    "./commands/"
+  ]
+}
