@@ -9,7 +9,7 @@
   },
   "plugins": [
     {
-      "name": "everything-yakuza-code",
+      "name": "eyc",
       "source": "./",
       "description": "Specialized agents and guided pipeline hooks for orchestrating, coding, refactoring, and testing with strict plan adherence and acceptance criteria validation",
       "version": "1.0.0",
