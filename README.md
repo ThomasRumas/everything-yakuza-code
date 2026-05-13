@@ -13,7 +13,7 @@ A structured pipeline of specialized agents — plan, code, refactor, test — w
 /plugin marketplace add https://github.com/thomasrumas/everything-yakuza-code
 
 # Install plugin
-/plugin install eyc@everything-yakuza-code
+/plugin install eyc@eyc
 ```
 
 ---
