@@ -12,7 +12,7 @@
       "name": "eyc",
       "source": "./",
       "description": "Specialized agents and guided pipeline hooks for orchestrating, coding, refactoring, and testing with strict plan adherence and acceptance criteria validation",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "author": {
         "name": "Thomas Rumas"
       },
@@ -38,6 +38,16 @@
         "workflow"
       ],
       "strict": false
+    },
+    {
+      "name": "caveman",
+      "source": {
+        "source": "github",
+        "repo": "JuliusBrussee/caveman"
+      },
+      "description": "Token compression skill — cuts ~65% of output tokens by making the agent talk concisely. Brain still big, mouth small.",
+      "keywords": ["tokens", "compression", "cost-reduction"],
+      "category": "productivity"
     }
   ]
 }

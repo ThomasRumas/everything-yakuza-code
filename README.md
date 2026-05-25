@@ -102,3 +102,43 @@ After every Claude response, the hook checks `.agents/spec.md` state:
 
 - Claude Code CLI v2.1.0+
 - Node.js (for the Stop hook script)
+
+---
+
+## Companion Plugins
+
+This marketplace also distributes two companion plugins for token optimization:
+
+### Caveman
+
+Cuts ~65% of output tokens by making the agent communicate concisely.
+
+```
+/plugin install caveman@eyc
+```
+
+### RTK (Rust Token Killer)
+
+CLI proxy that reduces token consumption by 60-90% on common dev commands (git, ls, grep, test runners, etc.).
+
+```
+/plugin install rtk@eyc
+```
+
+> **Note**: RTK also requires the `rtk` binary installed separately:
+> ```
+> brew install rtk        # macOS
+> rtk init -g             # Install Claude Code hook
+> ```
+
+---
+
+## Frontend Verification
+
+The `/coding` agent uses `playwright-cli` for frontend verification. Install it in your project:
+
+```
+npx skills add https://github.com/microsoft/playwright-cli --skill playwright-cli
+```
+
+When implementing UI tasks, the coding agent will automatically open a browser, navigate to your local dev server, and verify the rendered output matches expectations.

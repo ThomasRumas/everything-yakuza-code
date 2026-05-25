@@ -2,7 +2,6 @@
 name: testing
 description: Generate unit and integration tests from .agents/spec.md. Maps every acceptance criterion to at least one test case, covers edge cases and failure modes, and appends a Testing Report to spec.md. Never modifies production code.
 disable-model-invocation: true
-context: fork
 allowed-tools: Read Write Edit Bash Grep Glob WebSearch WebFetch TodoRead TodoWrite
 ---
 

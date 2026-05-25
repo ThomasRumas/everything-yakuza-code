@@ -2,7 +2,6 @@
 name: refactor
 description: Review code produced by /coding and propose safe improvements (critical, major, minor). No code is modified — all changes require explicit user approval. Appends a Refactoring Report to spec.md.
 disable-model-invocation: true
-context: fork
 allowed-tools: Read Bash Grep Glob WebSearch WebFetch TodoRead TodoWrite
 ---
 
