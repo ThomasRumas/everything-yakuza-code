@@ -1,6 +1,6 @@
 {
   "name": "eyc",
-  "version": "1.1.0",
+  "version": "1.0.0",
   "description": "Agent-based software development workflow — orchestrate, code, refactor, and test with specialized agents and guided pipeline hooks",
   "author": {
     "name": "Thomas Rumas",

@@ -8,7 +8,9 @@ A structured pipeline of specialized agents — plan, code, refactor, test — w
 
 ## Install
 
-```
+### From Marketplace
+
+```bash
 # Add marketplace
 /plugin marketplace add https://github.com/thomasrumas/everything-yakuza-code
 
@@ -21,45 +23,103 @@ A structured pipeline of specialized agents — plan, code, refactor, test — w
 ## The Pipeline
 
 ```
-/orchestrator "feature description"
+claude --agent eyc:orchestrator "feature description"
        ↓
-   [confirm plan]
+  @eyc:architect → produces plan
        ↓
-  /coding
+   [user confirms plan]        ← human gate #1
        ↓
-  /refactor
+  @eyc:coding → executes plan
        ↓
-   [approve changes]
+  @eyc:refactor → reviews code
        ↓
-  /testing
+   [issues?]
+    yes → [user approves fixes] ← human gate #2
+           ↓
+         @coding (apply fixes)
+    no  → continue
        ↓
-  /archive <name>
+  @eyc:testing → generates tests
+       ↓
+  @eyc:archive → preserves spec
 ```
 
 After every Claude response, a hook reads `.agents/spec.md` and prints the suggested next step — so you never have to remember where you are in the pipeline.
 
 ---
 
-## Commands
+## Orchestrator (Recommended)
 
-| Command | What it does |
-|---|---|
-| `/orchestrator "feature"` | Architect agent produces a full implementation plan. Waits for your confirmation before writing anything. |
-| `/coding` | Coding agent executes the plan from `.agents/spec.md` exactly as written. No interpretation, no extra work. |
-| `/refactor` | Refactoring agent reviews the code and proposes safe improvements (critical / major / minor). No code is modified until you approve. |
-| `/testing` | Testing agent generates unit and integration tests mapped to every acceptance criterion. Never touches production code. |
-| `/archive <name>` | Moves `.agents/spec.md` to `.agents/archived/<name>.md` when the feature is complete. |
+The **orchestrator** agent runs the full pipeline automatically. You invoke it once with your feature description, and it delegates to each specialized agent in sequence.
+
+### Usage
+
+```bash
+# Start a session with the orchestrator as main agent
+claude --agent eyc:orchestrator
+
+# Or set it as default in .claude/settings.json
+{
+  "agent": "eyc:orchestrator"
+}
+```
+
+Then describe your feature:
+
+```
+Build a user authentication system with JWT tokens and refresh token rotation
+```
+
+### What happens automatically
+
+1. **Architect** produces the plan → orchestrator presents it to you
+2. **You confirm** the plan (only human gate #1)
+3. **Coding** executes the plan
+4. **Refactor** reviews the code
+5. If issues found → orchestrator presents them → **you decide** whether to apply fixes (human gate #2)
+6. **Testing** generates tests
+7. **Archive** preserves the spec
+
+### Human gates
+
+| Gate | When | What you decide |
+|------|------|-----------------|
+| Plan approval | After architect finishes | Confirm the plan is correct before coding starts |
+| Refactor fixes | Only if refactor finds issues | Whether to apply the suggested improvements |
+
+If no refactoring issues are found, the pipeline continues straight to testing without interruption.
 
 ---
 
-## Agents
+## Individual Agents
 
-Each command delegates to a specialized agent with a strict role:
+You can still invoke agents individually outside the orchestrator when needed — for example, to re-run just the testing stage or to iterate on the plan.
 
-- **orchestrator** — Transforms a user request into a complete, unambiguous implementation plan. Blocks if requirements are unclear.
-- **coding** — Executes the plan task by task. Stops immediately if anything is ambiguous or missing.
-- **refactor** — Proposes safe, behavior-preserving improvements only. Rejects anything HIGH risk.
-- **testing** — Generates tests from acceptance criteria. Read-only access to production code.
+Invoke agents with `@eyc:agent-name` in Claude Code. Each has a strict role:
+
+Invoke agents with `@eyc:agent-name` in Claude Code. Each has a strict role:
+
+| Agent | Invocation | Role |
+|---|---|---|
+| **Orchestrator** | `claude --agent eyc:orchestrator` | Runs the full pipeline — delegates to all agents below |
+| **Architect** | `@eyc:architect "feature"` | Produces full implementation plan → `.agents/spec.md` |
+| **Coding** | `@eyc:coding` | Executes the plan task by task. Stops if anything ambiguous |
+| **Refactor** | `@eyc:refactor` | Proposes safe, behavior-preserving improvements only |
+| **Testing** | `@eyc:testing` | Generates tests from acceptance criteria. Never touches production code |
+| **Archive** | `@eyc:archive <name>` | Moves spec to `.agents/archived/<name>.md` when done |
+
+### How Custom Agents Work in Claude Code
+
+Claude Code agents are Markdown files with YAML frontmatter. They live in the `agents/` directory of a plugin. Each agent defines:
+
+- **name** — identifier used with `@eyc:agent-name`
+- **description** — what the agent does (shown in `/agents` list)
+- **tools** — which tools the agent can use (Read, Write, Bash, Grep, etc.)
+- **model** — `inherit` uses the current model, or specify one
+- **permissionMode** — `acceptEdits` auto-approves file edits
+- **memory** — `project` enables project-scoped memory
+
+When you type `@eyc:architect "build a login page"`, Claude Code loads the architect agent's system prompt and restricts its capabilities to the declared tools.
 
 ---
 
@@ -71,74 +131,64 @@ Each pipeline stage appends its report to that file:
 
 ```
 spec.md
-├── # Business Specification       ← orchestrator writes
-├── # Technical Specification      ← orchestrator writes
-├── # Implementation Plan          ← orchestrator writes
+├── # Business Specification       ← architect writes
+├── # Technical Specification      ← architect writes
+├── # Implementation Plan          ← architect writes
 ├── ## Execution Report            ← coding appends
 ├── ## Refactoring Report          ← refactor appends
 └── ## Testing Report              ← testing appends
 ```
 
-The Stop hook reads which sections exist and guides you to the next step.
+The pipeline hook reads which sections exist and guides you to the next step.
 
 ---
 
-## Pipeline hook
+## Pipeline Hook
 
 After every Claude response, the hook checks `.agents/spec.md` state:
 
 | State | Suggestion |
 |---|---|
 | No spec.md | *(silent)* |
-| No Execution Report | `→ Next: run /coding` |
-| No Refactoring Report | `→ Next: run /refactor` |
-| Refactoring pending approval | `→ Approve refactoring, then /coding — or skip with /testing` |
-| No Testing Report | `→ Next: run /testing` |
-| All reports present | `→ Pipeline complete. Run /archive <name>` |
+| No Execution Report | `→ Next: run @eyc:coding` |
+| No Refactoring Report | `→ Next: run @eyc:refactor` |
+| Refactoring pending approval | `→ Approve refactoring, then @eyc:coding — or skip with @eyc:testing` |
+| No Testing Report | `→ Next: run @eyc:testing` |
+| All reports present | `→ Pipeline complete. Run @eyc:archive <name>` |
+
+---
+
+## Skills
+
+The plugin ships these skills (auto-invoked by Claude based on context):
+
+| Skill | Purpose |
+|---|---|
+| **architecture-decision-record** | Captures architectural decisions as structured ADR documents |
+| **playwright-cli** | Browser automation for frontend verification |
+
+---
+
+## Frontend Verification
+
+The `@coding` agent uses `playwright-cli` for frontend verification. The skill is bundled with this plugin (from [microsoft/playwright-cli](https://github.com/microsoft/playwright-cli)).
+
+When implementing UI tasks, the coding agent will automatically open a browser, navigate to your local dev server, and verify the rendered output matches expectations.
+
+```bash
+# Requires playwright-cli installed
+npm install -g @playwright/cli@latest
+```
+
+---
+
+## Architecture Decision Records
+
+The `@eyc:architect` agent can propose creating ADRs when it detects significant architectural decisions. It will ask for your agreement before writing. ADRs are stored in `docs/adr/` using the Nygard format.
 
 ---
 
 ## Requirements
 
 - Claude Code CLI v2.1.0+
-- Node.js (for the Stop hook script)
-
----
-
-## Companion Plugins
-
-This marketplace also distributes two companion plugins for token optimization:
-
-### Caveman
-
-Cuts ~65% of output tokens by making the agent communicate concisely.
-
-```
-/plugin install caveman@eyc
-```
-
-### RTK (Rust Token Killer)
-
-CLI proxy that reduces token consumption by 60-90% on common dev commands (git, ls, grep, test runners, etc.).
-
-```
-/plugin install rtk@eyc
-```
-
-> **Note**: RTK also requires the `rtk` binary installed separately:
-> ```
-> brew install rtk        # macOS
-> rtk init -g             # Install Claude Code hook
-> ```
-
----
-
-## Frontend Verification
-
-The `/coding` agent uses `playwright-cli` for frontend verification. Install it in your project:
-
-```
-npx skills add https://github.com/microsoft/playwright-cli --skill playwright-cli
-```
-
-When implementing UI tasks, the coding agent will automatically open a browser, navigate to your local dev server, and verify the rendered output matches expectations.
+- Playwright CLI (optional, for frontend verification)

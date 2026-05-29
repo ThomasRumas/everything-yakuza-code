@@ -38,16 +38,6 @@
         "workflow"
       ],
       "strict": false
-    },
-    {
-      "name": "caveman",
-      "source": {
-        "source": "github",
-        "repo": "JuliusBrussee/caveman"
-      },
-      "description": "Token compression skill — cuts ~65% of output tokens by making the agent talk concisely. Brain still big, mouth small.",
-      "keywords": ["tokens", "compression", "cost-reduction"],
-      "category": "productivity"
     }
   ]
 }
